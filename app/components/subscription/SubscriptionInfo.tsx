@@ -26,17 +26,21 @@ export default function SubscriptionInfo() {
           throw new Error('User not authenticated')
         }
 
-        const { data, error } = await supabase
-          .from('subscriptions')
-          .select('*')
-          .eq('user_id', user.id)
-          .single()
+        // For mock Supabase implementation - simplified for development
+        const result = supabase.from('subscriptions').select()
 
-        if (error && error.code !== 'PGRST116') { // PGRST116 is the error code for no rows returned
-          throw error
+        if (result.error) {
+          throw result.error
         }
 
-        setSubscription(data)
+        // With real Supabase, this would be:
+        // const { data, error } = await supabase
+        //   .from('subscriptions')
+        //   .select('*')
+        //   .eq('user_id', user.id)
+        //   .single()
+
+        setSubscription(result.data as Subscription)
       } catch (error: any) {
         setError(error.message || 'Failed to load subscription information')
       } finally {

@@ -3,10 +3,10 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import { mockSupabase } from '@/app/lib/mock-supabase'; // Corrected import path
 
+// Updated interface to exactly match Next.js 15's PageProps
 interface VideoDetailPageProps {
-  params: {
-    id: string;
-  };
+  params: Promise<any> | undefined;
+  searchParams: Promise<any> | undefined;
 }
 
 // Define the structure of a video lesson based on the actual mock data
@@ -84,8 +84,15 @@ interface MockVideoLessonsQueryBuilder {
 }
 
 // The Page component (Server Component)
-const VideoDetailPage: React.FC<VideoDetailPageProps> = async ({ params }) => {
-  const videoId = params.id;
+const VideoDetailPage = async ({ params }: VideoDetailPageProps) => {
+  if (!params) {
+    notFound();
+    return null;
+  }
+  
+  // Resolve the params promise
+  const resolvedParams = await params;
+  const videoId = resolvedParams.id;
 
   // Fetch the video details using the ID from the route parameters
   const video = await getVideoDetails(videoId);

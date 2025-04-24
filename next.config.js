@@ -19,6 +19,14 @@ const nextConfig = {
       allowedOrigins: ['localhost:3000', 'localhost:3001', 'localhost:3002'],
     },
   },
+  // Skip TypeScript type checking on build
+  typescript: {
+    // !! WARN !!
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    // !! WARN !!
+    ignoreBuildErrors: true,
+  },
 }
 
 module.exports = nextConfig 

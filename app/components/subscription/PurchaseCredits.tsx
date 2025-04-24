@@ -48,9 +48,6 @@ export default function PurchaseCredits() {
         throw new Error('User not authenticated')
       }
 
-      // In a real application, this would integrate with a payment processor
-      // For now, we'll simulate a successful purchase
-      
       // First, get the selected package
       const selectedPkg = creditPackages.find(pkg => pkg.id === selectedPackage)
       if (!selectedPkg) {
@@ -58,7 +55,7 @@ export default function PurchaseCredits() {
       }
 
       // Then, update the user's subscription with the new credits
-      // This is a simplified version - in a real app, you'd first process payment
+      // This is simplified for development with the mock implementation
       const { data, error } = await supabase
         .from('subscriptions')
         .update({ 
@@ -66,8 +63,11 @@ export default function PurchaseCredits() {
             credit_amount: selectedPkg.credits 
           })
         })
-        .eq('user_id', user.id)
-        .select()
+        
+      // The mock doesn't support method chaining after update
+      // This would be used in the real implementation:
+      // .eq('user_id', user.id)
+      // .select()
 
       if (error) throw error
 

@@ -248,24 +248,65 @@ const mockUserSkills = [
   },
 ];
 
+// Define a standard error type for the mock client
+interface MockError {
+  message: string;
+  code?: string;
+}
+
 // Create a mock Supabase client
 export const mockSupabase = {
   auth: {
     getUser: async () => {
-      return { data: { user: mockUser }, error: null }
+      return { data: { user: mockUser }, error: null as MockError | null }
     },
     signOut: async () => {
-      return { error: null }
+      return { error: null as MockError | null }
+    },
+    signInWithPassword: async (credentials: { email: string; password: string }) => {
+      // Simple mock implementation - always succeeds for demo user
+      if (credentials.email === "user@example.com" && credentials.password === "password") {
+        return { data: { user: mockUser }, error: null as MockError | null };
+      } else {
+        return { data: null, error: { message: "Invalid login credentials" } as MockError };
+      }
+    },
+    signUp: async (credentials: { email: string; password: string; options?: any }) => {
+      // Mock implementation that always succeeds
+      return { data: { user: { ...mockUser, email: credentials.email } }, error: null as MockError | null };
     }
   },
+  
+  storage: {
+    from: (bucket: string) => {
+      return {
+        upload: async (path: string, file: File) => {
+          console.log(`Mock storage: Uploading ${file.name} to ${bucket}/${path}`);
+          return { data: { path }, error: null as MockError | null };
+        },
+        getPublicUrl: (path: string) => {
+          const publicUrl = `https://example.com/storage/${bucket}/${path}`;
+          return { data: { publicUrl } };
+        }
+      };
+    }
+  },
+
   from: (table: string) => {
     if (table === 'subscriptions') {
       return {
-        select: () => ({
-          eq: () => ({
-            single: async () => ({ data: mockSubscription, error: null })
-          })
-        })
+        select: () => {
+          // Direct return for simple implementation
+          return { data: mockSubscription, error: null as MockError | null };
+        },
+        insert: async (data: any) => ({ data: null, error: null as MockError | null }),
+        update: async (data: any) => {
+          // Update the mock subscription data
+          if (data.video_credits_remaining) {
+            mockSubscription.video_credits_remaining = data.video_credits_remaining;
+          }
+          return { data: mockSubscription, error: null as MockError | null };
+        }
       };
     }
 
@@ -274,10 +315,12 @@ export const mockSupabase = {
         select: () => ({
           eq: () => ({
             order: () => ({
-              limit: async () => ({ data: mockHomework, error: null })
+              limit: async () => ({ data: mockHomework, error: null as MockError | null })
             })
           })
-        })
+        }),
+        insert: async (data: any) => ({ data: null, error: null as MockError | null }),
+        update: async (data: any) => ({ data: null, error: null as MockError | null })
       };
     }
 
@@ -287,12 +330,14 @@ export const mockSupabase = {
         select: () => ({
           eq: () => ({
             order: () => ({
-              limit: async () => ({ data: mockVideoLessons, error: null })
+              limit: async () => ({ data: mockVideoLessons, error: null as MockError | null })
             })
           }),
           // Include 'then' if specifically used elsewhere for this table
           // then: async () => ({ data: mockVideoLessons, error: null })
-        })
+        }),
+        insert: async (data: any) => ({ data: null, error: null as MockError | null }),
+        update: async (data: any) => ({ data: null, error: null as MockError | null })
       };
     }
 
@@ -300,8 +345,10 @@ export const mockSupabase = {
       // This is the structure needed by SkillBreakdown.tsx
       return {
         select: () => ({
-          eq: async () => ({ data: mockUserSkills, error: null })
-        })
+          eq: async () => ({ data: mockUserSkills, error: null as MockError | null })
+        }),
+        insert: async (data: any) => ({ data: null, error: null as MockError | null }),
+        update: async (data: any) => ({ data: null, error: null as MockError | null })
       };
     }
 
@@ -310,9 +357,11 @@ export const mockSupabase = {
        return {
          select: () => ({
             // Add a default eq if needed, otherwise just then
-            eq: async () => ({ data: null, error: { message: 'videos.eq not implemented in mock'} }), // Default eq
-            then: async () => ({ data: mockVideoLessons, error: null })
-         })
+            eq: async () => ({ data: null, error: { message: 'videos.eq not implemented in mock' } as MockError }), // Default eq
+            then: async () => ({ data: mockVideoLessons, error: null as MockError | null })
+         }),
+         insert: async (data: any) => ({ data: null, error: null as MockError | null }),
+         update: async (data: any) => ({ data: null, error: null as MockError | null })
        };
     }
 
@@ -320,13 +369,20 @@ export const mockSupabase = {
     console.warn(`MockSupabase: Unhandled table "${table}"`);
     return {
       select: () => ({
-        eq: async () => ({ data: null, error: { message: `Table ${table} not handled in mock`} }),
+        eq: async () => ({ data: null, error: { message: `Table ${table} not handled in mock` } as MockError }),
         // Add other default methods if necessary based on potential usage
-        single: async () => ({ data: null, error: { message: `Table ${table} not handled in mock`} }),
-        order: () => ({ limit: async () => ({ data: [], error: { message: `Table ${table} not handled in mock`} }) }),
-        limit: async () => ({ data: [], error: { message: `Table ${table} not handled in mock`} }),
-        then: async () => ({ data: null, error: { message: `Table ${table} not handled in mock`} })
-      })
+        single: async () => ({ data: null, error: { message: `Table ${table} not handled in mock` } as MockError }),
+        order: () => ({ limit: async () => ({ data: [], error: { message: `Table ${table} not handled in mock` } as MockError }) }),
+        limit: async () => ({ data: [], error: { message: `Table ${table} not handled in mock` } as MockError }),
+        then: async () => ({ data: null, error: { message: `Table ${table} not handled in mock` } as MockError })
+      }),
+      insert: async (data: any) => {
+        if (table === 'users') {
+          return { data: data, error: null as MockError | null };
+        }
+        return { data: null, error: { message: `Unable to insert into ${table} table in mock` } as MockError };
+      },
+      update: async (data: any) => ({ data: null, error: { message: `Unable to update ${table} table in mock` } as MockError })
     };
   },
   rpc: (func: string, params: any) => {
