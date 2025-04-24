@@ -342,10 +342,13 @@ export const mockSupabase = {
     }
 
     if (table === 'user_skills') {
-      // This is the structure needed by SkillBreakdown.tsx
+      // This structure matches how it's called in BotSaiAssistant
       return {
         select: () => ({
-          eq: async () => ({ data: mockUserSkills, error: null as MockError | null })
+          eq: async () => ({ 
+              data: mockUserSkills, 
+              error: null as MockError | null 
+          })
         }),
         insert: async (data: any) => ({ data: null, error: null as MockError | null }),
         update: async (data: any) => ({ data: null, error: null as MockError | null })
