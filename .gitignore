@@ -1,0 +1,12 @@
+# Environment variables
+.env*.local
+
+# Node dependencies
+node_modules/
+
+# Build directory
+.next/
+out/
+
+# macOS specific
+.DS_Store
