@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import React, { useState, useEffect, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { analyzePracticeTest } from './actions'; // Import the server action
 import DashboardLayout from '@/app/components/layouts/DashboardLayout';
 
@@ -19,11 +19,11 @@ function SubmitButton() {
   );
 }
 
-// Upload Form Component using useFormState
+// Upload Form Component using useActionState
 const UploadForm = () => {
   // Initial state for the form action result
   const initialState = null;
-  const [state, formAction] = useFormState(analyzePracticeTest, initialState);
+  const [state, formAction] = useActionState(analyzePracticeTest, initialState);
 
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
 
