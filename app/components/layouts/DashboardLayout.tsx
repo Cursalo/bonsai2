@@ -24,6 +24,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: 'Homework', href: '/homework', icon: '📝' },
     { name: 'Video Lessons', href: '/video', icon: '🎬' },
     { name: 'Progress', href: '/progress', icon: '📈' },
+    { name: 'Upload Results', href: '/upload', icon: '📤' },
     { name: 'Subscription', href: '/subscription', icon: '💳' },
   ]
 
